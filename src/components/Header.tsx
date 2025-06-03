@@ -7,15 +7,15 @@ import {
   MenubarContent,
   MenubarItem,
 } from "@/components/ui/menubar"
-import { NutIcon, Dumbbell, User, SunMoon, LogOut, Settings } from "lucide-react"
-import { useTheme } from "next-themes"
+import { NutIcon, Dumbbell, User, LogOut, Settings } from "lucide-react"
+// import { useTheme } from "next-themes"
 
 export function Header() {
-  const { theme, setTheme } = useTheme()
+//   const { theme, setTheme } = useTheme()
 
-  const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark")
-  }
+//   const toggleTheme = () => {
+//     setTheme(theme === "dark" ? "light" : "dark")
+//   }
 
   return (
     <Menubar>
@@ -50,12 +50,12 @@ export function Header() {
         </MenubarContent>
       </MenubarMenu>
 
-      <MenubarMenu>
+      {/* <MenubarMenu>
         <MenubarTrigger onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
             <SunMoon className="mr-2 h-4 w-4" />
             {theme === "dark" ? "Light Mode" : "Dark Mode"}
         </MenubarTrigger>
-      </MenubarMenu>
+      </MenubarMenu> */}
     </Menubar>
   )
 }

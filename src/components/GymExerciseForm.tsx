@@ -21,8 +21,12 @@ import {
 	SelectContent,
 	SelectItem,
 } from "@/components/ui/select";
+
+// Extra imports
 import { toast } from "sonner";
 import { Toaster } from 'sonner';
+import { ThemeProvider } from "@/components/theme-provider";
+
 
 const formSchema = z.object({
 	exercise: z.string().min(1, "Select an exercise"),
@@ -88,7 +92,11 @@ export function GymExerciseForm() {
 
 	return (
 		<Form {...form}>
-			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+			<ThemeProvider
+				defaultTheme="dark"
+				storageKey="vite-ui-theme"
+			>
+				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
 				<FormField
 					control={form.control}
 					name="exercise"
@@ -218,6 +226,7 @@ export function GymExerciseForm() {
 				<Button type="submit">Submit</Button>
 			</form>
 			<Toaster position="bottom-center" richColors />
+			</ThemeProvider>
 		</Form>
 	);
 }
