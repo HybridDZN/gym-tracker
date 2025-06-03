@@ -6,8 +6,6 @@ const router = express.Router();
 router.post('/workouts', async (req, res) => {
   try {
     const workoutData = req.body;
-    
-    
     const insertedWorkout = await insertWorkout(workoutData);
     res.status(201).json(insertedWorkout);
   } catch (error) {
