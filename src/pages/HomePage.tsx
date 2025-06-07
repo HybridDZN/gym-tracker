@@ -18,6 +18,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { useSession } from "@/context/SessionContext";
 import supabase from "@/supabase";
+import { Menu, Rocket, ShieldAlert, ChartBar, User } from "lucide-react";
 
 interface FeatureCardProps {
   icon: React.ReactNode;
@@ -68,7 +69,7 @@ const LandingPage = () => {
                       Sign out
                     </Button>
                   ) : (
-                    <Link to="/auth">
+                    <Link to="/">
                       <Button
                         variant="secondary"
                         className="text-zinc-600 hover:bg-zinc-100"
@@ -102,7 +103,7 @@ const LandingPage = () => {
               </p>
               <div className="flex space-x-4">
                 <Button variant="secondary" asChild>
-                  <Link to="/auth">Get Started</Link>
+                  <Link to="/">Get Started</Link>
                 </Button>
               </div>
             </div>

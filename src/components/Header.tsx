@@ -7,29 +7,33 @@ import {
   MenubarContent,
   MenubarItem,
 } from "@/components/ui/menubar"
-import { NutIcon, Dumbbell, User, LogOut, Settings } from "lucide-react"
-// import { useTheme } from "next-themes"
+import { NutIcon, User, LogOut, Settings, Table } from "lucide-react"
+import { useNavigate } from "react-router-dom"
+import supabase from "@/supabase"
+import { toast } from "sonner"
 
 export function Header() {
-//   const { theme, setTheme } = useTheme()
+  const navigate = useNavigate()
 
-//   const toggleTheme = () => {
-//     setTheme(theme === "dark" ? "light" : "dark")
-//   }
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    toast.success("Logged out!")
+    navigate("/")
+  }
 
   return (
-    <Menubar>
+    <Menubar className="mb-8">
       <MenubarMenu>
-        <MenubarTrigger>
+        <MenubarTrigger onClick={() => navigate("/input")}>
           <NutIcon className="mr-2 h-4 w-4" />
           Input
         </MenubarTrigger>
       </MenubarMenu>
 
       <MenubarMenu>
-        <MenubarTrigger>
-          <Dumbbell className="mr-2 h-4 w-4" />
-          Workouts
+        <MenubarTrigger onClick={() => navigate("/exercises")}>
+          <Table className="mr-2 h-4 w-4" />
+          Exercises
         </MenubarTrigger>
       </MenubarMenu>
 
@@ -43,19 +47,12 @@ export function Header() {
             <Settings className="mr-2 h-4 w-4" />
             Settings
           </MenubarItem>
-          <MenubarItem>
+          <MenubarItem onClick={handleLogout}>
             <LogOut className="mr-2 h-4 w-4" />
             Logout
           </MenubarItem>
         </MenubarContent>
       </MenubarMenu>
-
-      {/* <MenubarMenu>
-        <MenubarTrigger onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
-            <SunMoon className="mr-2 h-4 w-4" />
-            {theme === "dark" ? "Light Mode" : "Dark Mode"}
-        </MenubarTrigger>
-      </MenubarMenu> */}
     </Menubar>
   )
 }
