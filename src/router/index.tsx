@@ -1,7 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
-import ProtectedPage from "../pages/ProtectedPage.tsx";
 import NotFoundPage from "../pages/404Page.tsx";
-import AuthProtectedRoute from "./AuthProtectedRoute.tsx";
 import Providers from "../Providers.tsx";
 import { AuthPage } from "@/pages/AuthPage.tsx";
 import GymExerciseForm from "@/components/GymExerciseForm.tsx";
@@ -15,7 +13,7 @@ const router = createBrowserRouter([
       // Public routes
       {
         path: "/",
-        element: <GymExerciseForm />,
+        element: <AuthPage />,
       },
       {
         path: "/auth",
@@ -23,14 +21,15 @@ const router = createBrowserRouter([
       },
       // Auth Protected routes
       {
-        path: "/",
-        element: <AuthProtectedRoute />,
-        children: [
-          {
-            path: "/protected",
-            element: <ProtectedPage />,
-          },
-        ],
+        path: "/input",
+        element: <GymExerciseForm />,
+        // Example of how to protect a route. It has been used above for GymExerciseForm.
+        // children: [
+        //   {
+        //     path: "/protected",
+        //     element: <ProtectedPage />,
+        //   },
+        // ],
       },
     ],
   },

@@ -26,6 +26,7 @@ import {
 import { toast } from "sonner";
 import { Toaster } from 'sonner';
 import { ThemeProvider } from "@/components/theme-provider";
+import supabase from "@/supabase";
 
 
 const formSchema = z.object({
@@ -59,35 +60,41 @@ export function GymExerciseForm() {
 		},
 	});
 
-	async function onSubmit(formData: FormValues) {
-  console.log("Submitting:", formData);
+async function onSubmit(formData: FormValues) {
+//   console.log("Submitting:", formData);
 
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    toast.error("You must be logged in to submit a workout.");
+    // console.error("Auth error:", userError);
+    return;
+  }
+//   console.log("user.id:", user.id);
   const dataToSend = {
     exercise: formData.exercise,
     weight_type: formData.weightType,
     weight: formData.weight,
     reps: formData.reps,
-    notes: formData.notes || undefined,
+    notes: formData.notes || null,
+    user_id: user.id,
   };
+//   console.log("Correct User? ", dataToSend.user_id === user.id);
+  const { error } = await supabase
+    .from("workouts")
+    .insert([dataToSend])
 
-  try {
-    const res = await fetch('/api/workouts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(dataToSend),
-    });
-
-    if (!res.ok) {
-      throw new Error('Failed to insert workout');
-    }
-
-    const responseData = await res.json();
-
-    console.log('Inserted workout:', responseData);
-	toast("Workout logged successfully!");
-  } catch (error) {
-    console.error(error);
+  if (error) {
+    // console.error("Insert error:", error);
+    toast.error("Failed to log workout.");
+    return;
   }
+
+  toast.success("Workout logged successfully!");
 }
 
 	return (

@@ -67,7 +67,7 @@ export function AuthPage() {
 
   useEffect(() => {
     if (session) {
-      navigate("/protected");
+      navigate("/input");
     }
   }, [session, navigate]);
 
@@ -163,7 +163,7 @@ export function AuthPage() {
       </div>
       <div className="relative hidden bg-muted lg:block">
         <img
-          src="https://www.freepik.com/free-photo/tropical-green-leaves-background_4102585.htm"
+          src="/image.avif"
           alt="Image"
           className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
         />
