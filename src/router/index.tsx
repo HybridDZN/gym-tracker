@@ -6,7 +6,6 @@ import GymExerciseForm from "@/components/GymExerciseForm.tsx";
 import Header from "@/components/Header.tsx";
 import { ExercisesPage } from "@/pages/ExercisesPage.tsx";
 const router = createBrowserRouter([
-  // I recommend you reflect the routes here in the pages folder
   {
     path: "/",
     element: <Providers />,

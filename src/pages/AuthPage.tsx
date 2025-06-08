@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import supabase from "@/supabase";
@@ -40,30 +40,30 @@ export function AuthPage() {
   };
 
   // Handle registration with email and password
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // const handleRegister = async (e: React.FormEvent) => {
+  //   e.preventDefault();
 
-    try {
-      setLoading(true);
+  //   try {
+  //     setLoading(true);
 
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-      });
+  //     const { error } = await supabase.auth.signUp({
+  //       email,
+  //       password,
+  //     });
 
-      if (error) throw error;
+  //     if (error) throw error;
 
-      toast.success(
-        "Registration successful! Please check your email for verification."
-      );
-      // Optionally redirect to login tab or show verification message
-    } catch (e) {
-      const error = e as Error;
-      toast.error(error.message || "Failed to register");
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     toast.success(
+  //       "Registration successful! Please check your email for verification."
+  //     );
+  //     // Optionally redirect to login tab or show verification message
+  //   } catch (e) {
+  //     const error = e as Error;
+  //     toast.error(error.message || "Failed to register");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   useEffect(() => {
     if (session) {
@@ -74,22 +74,22 @@ export function AuthPage() {
   return (
     <div className="grid min-h-svh lg:grid-cols-2 bg-black">
       <div className="flex flex-col gap-4 p-6 md:p-10 bg-primary/70">
-        <Link to="/" className="text-secondary hover:underline">
+        {/* <Link to="/" className="text-secondary hover:underline">
           Home
-        </Link>
+        </Link> */}
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-md p-8 pb-18 pt-12 rounded-md shadow-md bg-white">
             <Tabs defaultValue="login" className="w-full">
               <div className="flex flex-col items-center gap-2 mb-2 text-center">
-                <img src="/logo.png" alt="logo" width={150} height={150} />
+                <img src="src\public\images\acorn.png" alt="logo" width={150} height={150} />
                 <h1 className="text-2xl font-bold text-primary">GoNuts</h1>
                 <p className="text-primary opacity-80 font-medium">
-                  Bringing the world together
+                  Minimalist gym tracker
                 </p>
               </div>
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-1">
                 <TabsTrigger value="login">Login</TabsTrigger>
-                <TabsTrigger value="register">Register</TabsTrigger>
+                {/* <TabsTrigger value="register">Register</TabsTrigger> */}
               </TabsList>
 
               {/* Login Tab Content */}
@@ -101,7 +101,7 @@ export function AuthPage() {
                       <Input
                         id="login-email"
                         type="email"
-                        placeholder="m@example.com"
+                        placeholder="email@example.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
@@ -125,9 +125,8 @@ export function AuthPage() {
                   </div>
                 </form>
               </TabsContent>
-
               {/* Register Tab Content */}
-              <TabsContent value="register">
+              {/* <TabsContent value="register">
                 <form className="flex flex-col gap-6" onSubmit={handleRegister}>
                   <div className="grid gap-6">
                     <div className="grid gap-2">
@@ -135,7 +134,7 @@ export function AuthPage() {
                       <Input
                         id="register-email"
                         type="email"
-                        placeholder="m@example.com"
+                        placeholder="email@example.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
@@ -156,14 +155,14 @@ export function AuthPage() {
                     </Button>
                   </div>
                 </form>
-              </TabsContent>
+              </TabsContent> */}
             </Tabs>
           </div>
         </div>
       </div>
       <div className="relative hidden bg-muted lg:block">
         <img
-          src="/image.avif"
+          src="src\public\images\background.jpg"
           alt="Image"
           className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
         />
