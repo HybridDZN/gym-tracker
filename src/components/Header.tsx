@@ -7,7 +7,7 @@ import {
   MenubarContent,
   MenubarItem,
 } from "@/components/ui/menubar"
-import { NutIcon, User, LogOut, Settings, Table } from "lucide-react"
+import { NutIcon, User, LogOut, Table } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import supabase from "@/supabase"
 import { toast } from "sonner"
@@ -43,10 +43,10 @@ export function Header() {
           Profile
         </MenubarTrigger>
         <MenubarContent>
-          <MenubarItem>
+          {/* <MenubarItem>
             <Settings className="mr-2 h-4 w-4" />
             Settings
-          </MenubarItem>
+          </MenubarItem> */}
           <MenubarItem onClick={handleLogout}>
             <LogOut className="mr-2 h-4 w-4" />
             Logout

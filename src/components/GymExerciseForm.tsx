@@ -27,6 +27,7 @@ import { toast } from "sonner";
 import { Toaster } from 'sonner';
 import { ThemeProvider } from "@/components/theme-provider";
 import supabase from "@/supabase";
+import { useEffect, useState } from "react";
 
 
 const formSchema = z.object({
@@ -49,6 +50,7 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export function GymExerciseForm() {
+    const [exerciseOptions, setExerciseOptions] = useState<{ exercise_id: number; name: string }[]>([]);
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
@@ -60,10 +62,18 @@ export function GymExerciseForm() {
 		},
 	});
 
+	useEffect(() => {
+		async function fetchExercises() {
+			const { data, error } = await supabase
+				.from("exercises")
+				.select("exercise_id, name");
+			if (!error && data) setExerciseOptions(data);
+		}
+		fetchExercises();
+	}, []);
+
 async function onSubmit(formData: FormValues) {
 //   console.log("Submitting:", formData);
-
-
   const {
     data: { user },
     error: userError,
@@ -108,28 +118,23 @@ async function onSubmit(formData: FormValues) {
 					control={form.control}
 					name="exercise"
 					render={({ field }) => (
-						<FormItem>
+						<FormItem className="text-left">
 							<FormLabel>Exercise</FormLabel>
 							<Select
 								onValueChange={field.onChange}
 								defaultValue={field.value}
 							>
-								<FormControl>
-									<SelectTrigger>
+								<FormControl className="w-full">
+									<SelectTrigger className="w-full">
 										<SelectValue placeholder="Select exercise" />
 									</SelectTrigger>
 								</FormControl>
 								<SelectContent>
-									<SelectItem value="bench_press">
-										Bench Press
-									</SelectItem>
-									<SelectItem value="squat">Squat</SelectItem>
-									<SelectItem value="deadlift">
-										Deadlift
-									</SelectItem>
-									<SelectItem value="pull_up">
-										Pull-Up
-									</SelectItem>
+									{exerciseOptions.map((ex) => (
+										<SelectItem key={ex.exercise_id} value={String(ex.name)}>
+											{ex.name}
+										</SelectItem>
+									))}
 								</SelectContent>
 							</Select>
 							<FormMessage />
@@ -141,28 +146,23 @@ async function onSubmit(formData: FormValues) {
 					control={form.control}
 					name="weightType"
 					render={({ field }) => (
-						<FormItem>
+						<FormItem className="text-left">
 							<FormLabel>Weight Type</FormLabel>
 							<Select
 								onValueChange={field.onChange}
 								defaultValue={field.value}
 							>
-								<FormControl>
-									<SelectTrigger>
+								<FormControl className="w-full">
+									<SelectTrigger className="w-full">
 										<SelectValue placeholder="Select weight type" />
 									</SelectTrigger>
 								</FormControl>
 								<SelectContent>
-									<SelectItem value="barbell">
-										Barbell
-									</SelectItem>
-									<SelectItem value="dumbbell">
-										Dumbbell
-									</SelectItem>
+									<SelectItem value="barbell">Barbell</SelectItem>
+									<SelectItem value="dumbbell">Dumbbell</SelectItem>
 									<SelectItem value="cable">Cable</SelectItem>
-									<SelectItem value="machine">
-										Machine
-									</SelectItem>
+									<SelectItem value="plate_loaded_machine">Machine</SelectItem>
+									<SelectItem value="bodyweight">Body Weight</SelectItem>
 								</SelectContent>
 							</Select>
 							<FormMessage />
@@ -174,10 +174,11 @@ async function onSubmit(formData: FormValues) {
 					control={form.control}
 					name="weight"
 					render={({ field }) => (
-						<FormItem>
+						<FormItem className="text-left">
 							<FormLabel>Weight (kg)</FormLabel>
-							<FormControl>
+							<FormControl className="w-full">
 								<Input
+									className="w-full"
 									type="number"
 									step="0.001"
 									{...field}
@@ -197,10 +198,11 @@ async function onSubmit(formData: FormValues) {
 					control={form.control}
 					name="reps"
 					render={({ field }) => (
-						<FormItem>
+						<FormItem className="text-left">
 							<FormLabel>Reps</FormLabel>
-							<FormControl>
+							<FormControl className="w-full">
 								<Input
+									className="w-full"
 									type="number"
 									{...field}
 									onChange={(e) =>
@@ -217,10 +219,11 @@ async function onSubmit(formData: FormValues) {
 					control={form.control}
 					name="notes"
 					render={({ field }) => (
-						<FormItem>
+						<FormItem className="text-left">
 							<FormLabel>Notes</FormLabel>
-							<FormControl>
+							<FormControl className="w-full">
 								<Textarea
+									className="w-full"
 									placeholder="Optional notes..."
 									{...field}
 								/>
