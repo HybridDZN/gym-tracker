@@ -31,20 +31,20 @@ import { useEffect, useState } from "react";
 
 
 const formSchema = z.object({
-	exercise: z.string().min(1, "Select an exercise"),
-	weightType: z.string().min(1, "Select a weight type"),
-	weight: z
-		.number({ invalid_type_error: "Weight must be a number" })
-		.positive("Must be greater than 0")
-		.max(1000)
-		.refine((val) => Number(val.toFixed(3)) === val, {
-			message: "Up to 3 decimal places only",
-		}),
-	reps: z
-		.number({ invalid_type_error: "Reps must be a number" })
-		.int("Must be an integer")
-		.positive("Must be positive"),
-	notes: z.string().optional(),
+    exercise: z.number({ invalid_type_error: "Select an exercise" }),
+    weightType: z.string().min(1, "Select a weight type"),
+    weight: z
+        .number({ invalid_type_error: "Weight must be a number" })
+        .positive("Must be greater than 0")
+        .max(1000)
+        .refine((val) => Number(val.toFixed(3)) === val, {
+            message: "Up to 3 decimal places only",
+        }),
+    reps: z
+        .number({ invalid_type_error: "Reps must be a number" })
+        .int("Must be an integer")
+        .positive("Must be positive"),
+    notes: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -54,7 +54,7 @@ export function GymExerciseForm() {
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
-			exercise: "",
+			exercise: undefined,
 			weightType: "",
 			weight: 0,
 			reps: 0,
@@ -86,7 +86,7 @@ async function onSubmit(formData: FormValues) {
   }
 //   console.log("user.id:", user.id);
   const dataToSend = {
-    exercise: formData.exercise,
+    exercise_id: formData.exercise,
     weight_type: formData.weightType,
     weight: formData.weight,
     reps: formData.reps,
@@ -121,8 +121,8 @@ async function onSubmit(formData: FormValues) {
 						<FormItem className="text-left">
 							<FormLabel>Exercise</FormLabel>
 							<Select
-								onValueChange={field.onChange}
-								defaultValue={field.value}
+								onValueChange={(val) => field.onChange(Number(val))}
+								defaultValue={field.value ? String(field.value) : undefined}
 							>
 								<FormControl className="w-full">
 									<SelectTrigger className="w-full">
@@ -131,7 +131,7 @@ async function onSubmit(formData: FormValues) {
 								</FormControl>
 								<SelectContent>
 									{exerciseOptions.map((ex) => (
-										<SelectItem key={ex.exercise_id} value={String(ex.name)}>
+										<SelectItem key={ex.exercise_id} value={String(ex.exercise_id)}>
 											{ex.name}
 										</SelectItem>
 									))}
