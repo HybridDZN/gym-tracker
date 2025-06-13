@@ -81,7 +81,7 @@ export function AuthPage() {
           <div className="w-full max-w-md p-8 pb-18 pt-12 rounded-md shadow-md bg-white">
             <Tabs defaultValue="login" className="w-full">
               <div className="flex flex-col items-center gap-2 mb-2 text-center">
-                <img src="src\public\images\acorn.png" alt="logo" width={150} height={150} />
+                <img src="\images\acorn.png" alt="logo" width={150} height={150} />
                 <h1 className="text-2xl font-bold text-primary">GoNuts</h1>
                 <p className="text-primary opacity-80 font-medium">
                   Minimalist gym tracker
@@ -162,7 +162,7 @@ export function AuthPage() {
       </div>
       <div className="relative hidden bg-muted lg:block">
         <img
-          src="src\public\images\background.jpg"
+          src="\images\background.jpg"
           alt="Image"
           className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
         />
