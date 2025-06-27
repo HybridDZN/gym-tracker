@@ -66,7 +66,8 @@ export function GymExerciseForm() {
 		async function fetchExercises() {
 			const { data, error } = await supabase
 				.from("exercises")
-				.select("exercise_id, name");
+				.select("exercise_id, name")
+				.order("name", { ascending: true }); // Sort by name ascending
 			if (!error && data) setExerciseOptions(data);
 		}
 		fetchExercises();

@@ -25,7 +25,18 @@ const TIMEFRAMES = [
 ]
 
 export function ExercisesPage() {
-  const [exercises, setExercises] = useState<any[]>([])
+  type Exercise = {
+    id: string
+    exercise_id: string
+    weight_type: string
+    weight: number
+    reps: number
+    notes: string
+    created_time: string
+    exercises?: { name: string } | null
+    user_id: string
+  }
+  const [exercises, setExercises] = useState<Exercise[]>([])
   const [loading, setLoading] = useState(true)
   const [days, setDays] = useState("7") // Default to 7 days
   const [advancedMode, setAdvancedMode] = useState(false)
@@ -47,13 +58,17 @@ export function ExercisesPage() {
       from.setDate(to.getDate() - parseInt(days, 10))
 
       // Join with exercises table for human-readable name
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("workouts")
-        .select("*, exercises(name)")
+        .select("*, exercises:exercise_id(name)")
         .eq("user_id", user.id)
         .gte("created_time", from.toISOString())
         .lte("created_time", to.toISOString())
         .order("created_time", { ascending: false })
+
+      if (error) {
+        console.error("Supabase error fetching workouts:", error)
+      }
 
       setExercises(data || [])
       setLoading(false)
