@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { ExerciseChartSelector, ExerciseProgressChart } from "@/components/ExerciseCharts"
 import supabase from "@/supabase"
 import {
   Table,
@@ -16,12 +16,16 @@ import {
   SelectItem,
 } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
+import { useEffect, useState } from "react"
 
 const TIMEFRAMES = [
   { label: "1 Day", value: "1" },
   { label: "3 Days", value: "3" },
   { label: "7 Days", value: "7" },
   { label: "1 Month", value: "30" },
+  { label: "6 Months", value: "182" },
+  { label: "1 Year", value: "365" },
+  { label: "5 Years", value: "1825" },
 ]
 
 export function ExercisesPage() {
@@ -40,6 +44,11 @@ export function ExercisesPage() {
   const [loading, setLoading] = useState(true)
   const [days, setDays] = useState("7") // Default to 7 days
   const [advancedMode, setAdvancedMode] = useState(false)
+
+  // For chart selection in advanced mode
+  const [chartType, setChartType] = useState<"line" | "bar" | "area">("line")
+  const [exerciseOptions, setExerciseOptions] = useState<{ value: string; label: string }[]>([])
+  const [selectedExercise, setSelectedExercise] = useState<string>("")
 
   useEffect(() => {
     async function fetchExercises() {
@@ -75,6 +84,20 @@ export function ExercisesPage() {
     }
     fetchExercises()
   }, [days])
+
+  useEffect(() => {
+    async function fetchExerciseOptions() {
+      const { data, error } = await supabase
+        .from("exercises")
+        .select("exercise_id, name")
+        .order("name", { ascending: true })
+      if (!error && data) {
+        setExerciseOptions(data.map((ex) => ({ value: String(ex.exercise_id), label: ex.name })))
+        if (data.length > 0 && !selectedExercise) setSelectedExercise(String(data[0].exercise_id))
+      }
+    }
+    if (advancedMode) fetchExerciseOptions()
+  }, [advancedMode, selectedExercise])
 
   const table = (
     <Table>
@@ -134,6 +157,24 @@ export function ExercisesPage() {
             (from last {TIMEFRAMES.find((tf) => tf.value === days)?.label})
           </span>
         </div>
+        <ExerciseChartSelector
+          label="Chart Type"
+          selected={chartType}
+          onChange={(value) => setChartType(value as "line" | "bar" | "area")}
+          options={[
+            { value: "line", label: "Line" },
+            { value: "bar", label: "Bar" },
+          ]}
+        />
+        <ExerciseChartSelector
+          label="Exercise"
+          selected={selectedExercise}
+          onChange={setSelectedExercise}
+          options={exerciseOptions}
+        />
+        {selectedExercise && (
+          <ExerciseProgressChart exerciseId={selectedExercise} chartType={chartType} timeRange={days} />
+        )}
         {loading ? <div>Loading...</div> : table}
       </div>
     )

@@ -51,27 +51,60 @@ type FormValues = z.infer<typeof formSchema>;
 
 export function GymExerciseForm() {
     const [exerciseOptions, setExerciseOptions] = useState<{ exercise_id: number; name: string }[]>([]);
-	const form = useForm<FormValues>({
-		resolver: zodResolver(formSchema),
-		defaultValues: {
-			exercise: undefined,
-			weightType: "",
-			weight: 0,
-			reps: 0,
-			notes: "",
-		},
-	});
+    const [lastLift, setLastLift] = useState<number | null>(null);
+    const form = useForm<FormValues>({
+        resolver: zodResolver(formSchema),
+        defaultValues: {
+            exercise: undefined,
+            weightType: "",
+            weight: 0,
+            reps: 0,
+            notes: "",
+        },
+    });
 
-	useEffect(() => {
-		async function fetchExercises() {
-			const { data, error } = await supabase
-				.from("exercises")
-				.select("exercise_id, name")
-				.order("name", { ascending: true }); // Sort by name ascending
-			if (!error && data) setExerciseOptions(data);
-		}
-		fetchExercises();
-	}, []);
+    // Fetch exercises sorted by name
+    useEffect(() => {
+        async function fetchExercises() {
+            const { data, error } = await supabase
+                .from("exercises")
+                .select("exercise_id, name")
+                .order("name", { ascending: true });
+            if (!error && data) setExerciseOptions(data);
+        }
+        fetchExercises();
+    }, []);
+
+    // Fetch last lift for selected exercise/weightType, not from today
+    useEffect(() => {
+        const sub = form.watch((values) => {
+            const { exercise, weightType } = values;
+            if (exercise && weightType) {
+                fetchLastLift(exercise, weightType);
+            } else {
+                setLastLift(null);
+            }
+        });
+        return () => sub.unsubscribe();
+    }, [form]);
+
+    async function fetchLastLift(exercise: number, weightType: string) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const { data, error } = await supabase
+            .from("workouts")
+            .select("weight, created_time")
+            .eq("exercise_id", exercise)
+            .eq("weight_type", weightType)
+            .lt("created_time", today.toISOString())
+            .order("created_time", { ascending: false })
+            .limit(1);
+        if (!error && data && data.length > 0) {
+            setLastLift(data[0].weight);
+        } else {
+            setLastLift(null);
+        }
+    }
 
 async function onSubmit(formData: FormValues) {
 //   console.log("Submitting:", formData);
@@ -233,6 +266,11 @@ async function onSubmit(formData: FormValues) {
 						</FormItem>
 					)}
 				/>
+
+				<div className="mb-2">
+					<span className="font-semibold">Last lift:&nbsp;</span>
+					{lastLift !== null ? `${lastLift} kg` : <span className="text-muted-foreground">No previous lift</span>}
+				</div>
 
 				<Button type="submit">Submit</Button>
 			</form>
