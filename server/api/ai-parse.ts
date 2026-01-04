@@ -17,41 +17,41 @@ interface ParseRequest {
   availableExercises: { exercise_id: number; name: string }[];
 }
 
+// Helper: redact sensitive-looking fields/values from objects for safe logging
+const redactSecrets = (obj: any): any => {
+  try {
+    if (!obj || typeof obj !== 'object') return obj;
+    const out: any = Array.isArray(obj) ? [] : {};
+    for (const [k, v] of Object.entries(obj)) {
+      const key = k.toLowerCase();
+      if (/key|token|secret|password|anon|bearer|api/i.test(key)) {
+        out[k] = '[REDACTED]';
+        continue;
+      }
+      if (typeof v === 'string') {
+        // redact long-looking tokens
+        if (v.length > 64 || /^(eyJ|gsk_|sk-|pk-|ghp_)/.test(v)) {
+          out[k] = '[REDACTED]';
+          continue;
+        }
+        out[k] = v;
+        continue;
+      }
+      if (typeof v === 'object') out[k] = redactSecrets(v);
+      else out[k] = v;
+    }
+    return out;
+  } catch (e) {
+    return '[UNREDACTABLE]';
+  }
+};
+
 /**
  * Parse workout transcript using Groq Inference API (free tier)
  * If no API key is set, the service will use a rule-based parser (always works, no API needed)
  */
 router.post('/ai-parse', async (req: Request, res: Response): Promise<void> => {
   try {
-    // Redact sensitive fields before logging request body
-    const redactSecrets = (obj: any) => {
-      try {
-        if (!obj || typeof obj !== 'object') return obj;
-        const out: any = Array.isArray(obj) ? [] : {};
-        for (const [k, v] of Object.entries(obj)) {
-          const key = k.toLowerCase();
-          if (/key|token|secret|password|anon|bearer|api/i.test(key)) {
-            out[k] = '[REDACTED]';
-            continue;
-          }
-          if (typeof v === 'string') {
-            // redact long-looking tokens
-            if (v.length > 64 || /^(eyJ|gsk_|sk-|pk-|ghp_)/.test(v)) {
-              out[k] = '[REDACTED]';
-              continue;
-            }
-            out[k] = v;
-            continue;
-          }
-          if (typeof v === 'object') out[k] = redactSecrets(v);
-          else out[k] = v;
-        }
-        return out;
-      } catch (e) {
-        return '[UNREDACTABLE]';
-      }
-    };
-
     console.log('ai-parse request body:', JSON.stringify(redactSecrets(req.body || {})));
 
     const { transcript, availableExercises } = req.body as ParseRequest;
