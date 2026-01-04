@@ -23,17 +23,24 @@ export const SessionProvider = ({ children }: Props) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const authStateListener = supabase.auth.onAuthStateChange(
-      async (_, session) => {
-        setSession(session);
-        setIsLoading(false);
-      }
-    );
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setIsLoading(false);
+    });
+
+    // Listen for auth state changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_, session) => {
+      setSession(session);
+      setIsLoading(false);
+    });
 
     return () => {
-      authStateListener.data.subscription.unsubscribe();
+      subscription.unsubscribe();
     };
-  }, [supabase]);
+  }, []);
 
   return (
     <SessionContext.Provider value={{ session }}>

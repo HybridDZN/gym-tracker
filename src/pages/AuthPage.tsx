@@ -67,7 +67,7 @@ export function AuthPage() {
 
   useEffect(() => {
     if (session) {
-      navigate("/input");
+      navigate("/dashboard");
     }
   }, [session, navigate]);
 

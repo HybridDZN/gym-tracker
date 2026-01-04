@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
-import workoutsRouter from './api/workouts';
+import workoutsRouter from './api/workouts.ts';
+import aiParseRouter from './api/ai-parse.ts';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -11,7 +12,8 @@ app.use(cors({
 
 app.use(express.json());
 app.use('/api', workoutsRouter);
+app.use('/api', aiParseRouter);
 
 app.listen(PORT, () => {
-  // console.log(`Server listening on http://localhost:${PORT}`);
+  console.log(`Server listening on http://localhost:${PORT}`);
 });

@@ -28,6 +28,7 @@ import { Toaster } from 'sonner';
 import { ThemeProvider } from "@/components/theme-provider";
 import supabase from "@/supabase";
 import { useEffect, useState } from "react";
+import { RotateCcw } from "lucide-react";
 
 
 const formSchema = z.object({
@@ -52,6 +53,8 @@ type FormValues = z.infer<typeof formSchema>;
 export function GymExerciseForm() {
     const [exerciseOptions, setExerciseOptions] = useState<{ exercise_id: number; name: string }[]>([]);
     const [lastLift, setLastLift] = useState<number | null>(null);
+    const [isLoadingRecent, setIsLoadingRecent] = useState(false);
+    const [hasRecentExercise, setHasRecentExercise] = useState<boolean | null>(null);
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -106,6 +109,77 @@ export function GymExerciseForm() {
         }
     }
 
+    // Check if user has any previous exercises
+    useEffect(() => {
+        async function checkRecentExercise() {
+            const { data: userData } = await supabase.auth.getUser();
+            const user = userData?.user;
+            if (!user) {
+                setHasRecentExercise(false);
+                return;
+            }
+
+            const { data, error } = await supabase
+                .from("workouts")
+                .select("id")
+                .eq("user_id", user.id)
+                .limit(1);
+
+            if (!error && data && data.length > 0) {
+                setHasRecentExercise(true);
+            } else {
+                setHasRecentExercise(false);
+            }
+        }
+        checkRecentExercise();
+    }, []);
+
+    async function prefillLastExercise() {
+        setIsLoadingRecent(true);
+        try {
+            const { data: userData } = await supabase.auth.getUser();
+            const user = userData?.user;
+            if (!user) {
+                toast.error("You must be logged in to pre-fill exercises");
+                return;
+            }
+
+            // Fetch the most recent exercise entry
+            const { data, error } = await supabase
+                .from("workouts")
+                .select("exercise_id, weight_type, weight, reps")
+                .eq("user_id", user.id)
+                .order("created_time", { ascending: false })
+                .limit(1);
+
+            if (error) {
+                throw error;
+            }
+
+            if (!data || data.length === 0) {
+                toast.info("No previous exercises found");
+                setHasRecentExercise(false);
+                return;
+            }
+
+            const recent = data[0];
+            
+            // Pre-fill the form
+            form.setValue("exercise", recent.exercise_id);
+            form.setValue("weightType", recent.weight_type);
+            form.setValue("weight", recent.weight);
+            form.setValue("reps", recent.reps);
+            // Notes are not pre-filled as per requirements
+
+            toast.success("Form pre-filled with your most recent exercise!");
+        } catch (error) {
+            console.error("Error fetching recent exercise:", error);
+            toast.error("Failed to pre-fill form");
+        } finally {
+            setIsLoadingRecent(false);
+        }
+    }
+
 async function onSubmit(formData: FormValues) {
 //   console.log("Submitting:", formData);
   const {
@@ -139,6 +213,18 @@ async function onSubmit(formData: FormValues) {
   }
 
   toast.success("Workout logged successfully!");
+  
+  // Reset form after successful submission
+  form.reset({
+    exercise: undefined,
+    weightType: "",
+    weight: 0,
+    reps: 0,
+    notes: "",
+  });
+  
+  // Ensure pre-fill button is available after first submission
+  setHasRecentExercise(true);
 }
 
 	return (
@@ -156,7 +242,7 @@ async function onSubmit(formData: FormValues) {
 							<FormLabel>Exercise</FormLabel>
 							<Select
 								onValueChange={(val) => field.onChange(Number(val))}
-								defaultValue={field.value ? String(field.value) : undefined}
+								value={field.value ? String(field.value) : undefined}
 							>
 								<FormControl className="w-full">
 									<SelectTrigger className="w-full">
@@ -184,7 +270,7 @@ async function onSubmit(formData: FormValues) {
 							<FormLabel>Weight Type</FormLabel>
 							<Select
 								onValueChange={field.onChange}
-								defaultValue={field.value}
+								value={field.value}
 							>
 								<FormControl className="w-full">
 									<SelectTrigger className="w-full">
@@ -272,7 +358,23 @@ async function onSubmit(formData: FormValues) {
 					{lastLift !== null ? `${lastLift} kg` : <span className="text-muted-foreground">No previous lift</span>}
 				</div>
 
-				<Button type="submit">Submit</Button>
+				<div className="flex gap-2">
+					{hasRecentExercise !== false && (
+						<Button
+							type="button"
+							variant="outline"
+							onClick={prefillLastExercise}
+							disabled={isLoadingRecent}
+							className="flex-1"
+						>
+							<RotateCcw className="mr-2 h-4 w-4" />
+							{isLoadingRecent ? "Loading..." : "Pre-fill last exercise"}
+						</Button>
+					)}
+					<Button type="submit" className={hasRecentExercise !== false ? "flex-1" : ""}>
+						Submit
+					</Button>
+				</div>
 			</form>
 			<Toaster position="bottom-center" richColors />
 			</ThemeProvider>
