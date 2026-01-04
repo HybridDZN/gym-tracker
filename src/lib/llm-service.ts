@@ -29,7 +29,8 @@ export async function parseWorkoutFromVoice(
 ): Promise<LLMParseResult> {
   try {
     // If a client-side Groq API key is provided (dev/testing), call Groq directly
-    const groqKey = import.meta.env.GROQ_API_KEY
+    // Prefer VITE_ prefixed key for client builds, but allow non-VITE name if present
+    const groqKey = import.meta.env.VITE_GROQ_API_KEY || import.meta.env.GROQ_API_KEY
 
     if (groqKey) {
       const exerciseList = availableExercises
@@ -41,7 +42,7 @@ export async function parseWorkoutFromVoice(
       const systemPrompt = `You are a workout data parser. Convert natural language workout descriptions into structured JSON data.\n\nAvailable exercises (format: exercise_id: name):\n${exerciseList}\n\nAvailable weight types: ${weightTypes.join(', ')}\n\nRules:\n1. Extract ALL exercises, sets, reps, weights, and weight types from the input\n2. Match exercise names to the available exercises list (use exercise_id)\n3. If an exercise name doesn't match exactly, find the closest match\n4. Weight must be a positive number (max 1000), up to 3 decimal places\n5. Reps must be a positive integer\n6. Weight type must be one of: ${weightTypes.join(', ')}\n7. If weight type is not specified, infer from context\n8. If multiple sets of the same exercise, create separate entries\n9. Notes are optional\n\nReturn ONLY valid JSON in this exact format:\n{\n  "sets": [\n    {\n      "exercise_id": <number>,\n      "exercise_name": "<string>",\n      "weight_type": "<one of: ${weightTypes.join(', ')}>",\n      "weight": <number>,\n      "reps": <number>,\n      "notes": "<optional string>"\n    }\n  ]\n}`
 
       const userPrompt = `Parse this workout: "${transcript}"`
-      const model = import.meta.env.GROQ_MODEL || "llama-3.1-8b-instant"
+      const model = import.meta.env.VITE_GROQ_MODEL || import.meta.env.GROQ_MODEL || "llama-3.1-8b-instant"
 
       const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
